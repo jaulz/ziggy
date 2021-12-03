@@ -82,7 +82,17 @@ class CommandRouteGeneratorTest extends TestCase
     {
         config(['ziggy' => [
             'except' => ['admin.*'],
+            'templates' => [
+                'file' => <<<JAVASCRIPT
+// This is a custom template
+const Ziggy = :payload;
+
+export { Ziggy };
+
+JAVASCRIPT
+            ],
         ]]);
+
         $router = app('router');
         $router->get('posts/{post}/comments', $this->noop())->name('postComments.index');
         $router->get('admin', $this->noop())->name('admin.dashboard'); // Excluded, should NOT be present in file
@@ -90,7 +100,7 @@ class CommandRouteGeneratorTest extends TestCase
 
         Artisan::call('ziggy:generate');
 
-        $this->assertFileEquals('./tests/fixtures/ziggy.js', base_path('resources/js/ziggy.js'));
+        $this->assertFileEquals('./tests/fixtures/ziggy-custom.js', base_path('resources/js/ziggy.js'));
     }
 
     /** @test */
